@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap
+END
+dnext.c
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/dnext.c
+END
+sync-ad-openldap-users-groups.sh
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/sync-ad-openldap-users-groups.sh
+END
+ad-export-users-groups.py
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/scicomp/!svn/ver/1567/trunk/github/general/ad2openldap/ad-export-users-groups.py
+END
+openldap-export-users-groups.sh
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/openldap-export-users-groups.sh
+END
+openldap-purge-users-groups.sh
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/openldap-purge-users-groups.sh
+END
+ldiff.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/ldiff.py
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/scicomp/!svn/ver/1561/trunk/github/general/ad2openldap/README
+END
+ad-dump-users.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/scicomp/!svn/ver/1567/trunk/github/general/ad2openldap/ad-dump-users.py
+END
