@@ -19,10 +19,11 @@ For detailed information about using ad2openldap, please see the man
 page - ad2openldap(8).
 
 To get started after installing the ad2openldap package, several settings 
-must first be configured in /etc/ad2openldap/ad2openldap.conf.
+must first be configured in /etc/ad2openldap/ad2openldap.conf.  A note 
+on security, ad2openldap.conf must be 640 and root.openldap.
 
 In its current state, ad2opendap is targeted at Ubuntu.  With a few 
-slight modifications and configuration setting changes, it shouldn't 
+slight modifications or perhaps only configuration setting changes, it shouldn't 
 be terribly difficult to run on other distributions.
 
 An update usually consists of three steps:

@@ -1,0 +1,194 @@
+.TH AD2OPENLDAP: "8" "" "December 2012" "December 2012"
+
+.SH "NAME"
+ad2openldap \- program for populating an OpenLDAP server with Active Directory objects
+.LP
+.LP
+.SH "SYNOPSIS"
+.TP
+ad2openldap [\fB--help\fR]
+.TP
+ad2openldap [\fB--version\fR]
+.TP
+ad2openldap \fBdeltasync\fR [\fB--config-file CONFIG_FILE\fR]
+               [\fB--notify-address NOTIFY_ADDRESS\fR] [\fB--verbose\fR]
+               [\fB--debug\fR]
+.TP
+ad2openldap \fBfullsync\fR [\fB--config-file CONFIG_FILE\fR]
+              [\fB--notify-address NOTIFY_ADDRESS\fR] [\fB--verbose\fR]
+              [\fB--debug\fR]
+.TP
+ad2openldap \fBhealthcheck\fR [\fB--config-file CONFIG_FILE\fR]
+                 [\fB--notify-address NOTIFY_ADDRESS\fR] [\fB--verbose\fR]
+                 [\fB--debug\fR] [\fB--common-name COMMON_NAME\fR]
+.TP
+ad2openldap \fBrtcclean\fR [\fB--config-file CONFIG_FILE\fR]
+              [\fB--notify-address NOTIFY_ADDRESS\fR] [\fB--verbose\fR]
+              [\fB--debug\fR]
+
+.SH "DESCRIPTION"
+This program is used for replicating user/group information from a Microsoft
+Active Directory server into an OpenLDAP server. ad2openldap exists to: 1) 
+Compensate for Active Directory performance issues and 2) Isolate AD servers 
+from potential overload from bad cluster applications.
+
+.SH "COMMAND-LINE ACTIONS"
+.PP
+When calling ad2openldap from the command-line, the first non-hyphen argument 
+is interpreted as an action to perform.
+.PP
+The following actions may be performed:
+.PP
+\fBsetup\fR
+.RS 4
+Display setup instructions.
+.RE
+.PP
+\fBfullsync\fR
+.RS 4
+Perform a one-way, full sync from Active Directory to the ad2openldap DIT. 
+Must be run as root.  \fBUse with caution, this command is destructive and 
+currently will permanently delete all DITs on this system\fR.
+.RE
+.PP
+\fBdeltsync\fR
+.RS 4
+Perform a one-way sync from Active Directory to the ad2openldap DIT, 
+only working with the delta.  Typically run as the openldap user.
+.RE
+.PP
+\fBhealthcheck\fR
+.RS 4
+Check health of OpenLDAP instance by performing a search for a common name 
+that is expected to be present in the DIT.
+.RE
+.PP
+\fBrtcclean\fR
+.RS 4
+Install a clean copy of cn=config, which adheres to rfc2307bis. 
+\fBThis is a destructive command which should be used with caution\fR. 
+All files under ldap_rtc_parent_dir (ad2openldap.conf setting) 
+will be permanently lost!
+.RE
+.PP
+
+.SH "OPTIONS"
+.PP
+Options that may be used to modify behavior of actions are listed below.  Note 
+that certain options do not apply to all actions.
+.PP
+\fB-a, --notify-address <notify_address>\fR
+.RS 4
+Applies to all actions. E-mail address to send notifications to, overrides
+settings in ad2openldap.conf, use multiple times to send to more than 
+one recipient.
+.RE
+.PP
+\fB-C, --config-file <config_file>\fR
+.RS 4
+Applies to all actions.  Configuration file to use, defaults to /etc/ad2openldap/ad2openldap.conf.
+.RE
+.PP
+\fB-d, --debug\fR
+.RS 4
+Applies to all actions.  Turn debugging output on. 
+.RE
+.PP
+\fB-h, --help\fR
+.RS 4
+Show help message and exit.
+.RE
+.PP
+\fB-N, --common-name <common_name>\fR
+.RS 4
+Applies to \fBhealthcheck\fR action.  Specify a CN to search for. 
+A single matching entry being returned is considered a success.
+.RE
+.PP
+\fB-V, --version\fR
+.RS 4
+Print the version number and exit.
+.RE
+.PP
+\fB-v, --verbose\fR
+.RS 4
+Turn verbose output on. If redirecting output to an application log file, 
+this option is important. A future release may provide the option of specifying 
+a log file, but for the initial release, output goes to STDOUT and STDERR.
+.RE
+.PP
+\fB-y, --dont-blame-ad2openldap\fR
+.RS 4
+Applies to \fBrtcclean\fR and \fBfullsync\fR actions.  User confirms they understand 
+the command is destructive. 
+.RE
+.PP
+.SH "EXAMPLES"
+Drop and recreate cn=config, adhering to rfc2307bis:
+.PP
+.RS 2
+ad2openldap rtcclean --dont-blame-ad2openldap -v
+.RE
+.PP
+Perform a full sync (must be run as root):
+.PP
+.RS 2
+ad2openldap fullsync --dont-blame-ad2openldap -v
+.RE
+.PP
+Perform a delta sync (run as openldap user):
+.PP
+.RS 2
+ad2openldap deltasync --dont-blame-ad2openldap -v
+.RE
+.PP
+Perform a healthcheck, looking for a common name (run as openldap user):
+.PP
+.RS 2
+ad2openldap healthcheck --common-name tjohnson
+.RE
+.SH "NOTES"
+Before getting started, it is necessary to configure settings in ad2openldap.conf 
+which resides in /etc/ad2openldap by default.  The configuration file is 
+self-documented.  \fBad2openldap setup\fR displays helpful information for 
+getting up and running.
+.PP
+Troubleshooting - using the --verbose flag is important for troubleshooting.  
+Analyzing the current dump, last dump and delta is often important.  These 
+files are specified in ad2openldap.conf.
+.PP
+Possible failure modes - 1) LDAP server failure - needs restart, possibly 
+followed by forced full update if corrupt or incomplete, 2) Firewall 
+block still improperly active - look at update script for removal syntax 
+(this failure is very unlikely given the current process), 3) Bad or 
+conflicting AD entities - a forced full update should remedy this.
+.SH "SEE ALSO"
+.PP
+
+\fBpython\fR(1),
+\fBiptables\fR(8),
+\fBslapd\fR(8),
+\fBldapsearch\fR(1),
+\fBldapmodify\fR(1),
+\fBslapadd\fR(8)
+
+.SH "AUTHOR"
+.PP
+\fBJeff Katcher\fR 
+.RS 4
+Author
+.RE
+\fBBrian Hodges <bhodges@fhcrc.org>\fR
+.RS 4
+Maintainer
+.RE
+\fBDirk Petersen\fR 
+.RS 4
+Contributor
+.RE
+.SH "COPYRIGHT"
+.br
+.PP
+Copyright 2011\-2012 Jeff Katcher\&.
+.PP
+
