@@ -181,7 +181,6 @@ def main():
             ldap_rtc_fix_perms(ldap_rtc_parent_dir, ldap_rtc_dir, ldap_rtc_dir_perms, openldap_user, openldap_group)
             run_command(slapd_start, verbose=arguments.verbose)
             run_command(iptables_delete, verbose=arguments.verbose)
-        os.unlink(pid_file)
     except:
         exc_type, exc_value, exc_traceback = sys.exc_info()
         # Notify with limited information. Full traceback will go to stderr for now
@@ -190,7 +189,9 @@ def main():
             config)
         raise
     finally:
+        os.unlink(pid_file)
         logging.info('ad2openldap - finished execution at %s' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 
 
 def notify(notify_addresses, subject, text, config):
@@ -431,15 +432,24 @@ def setup_information():
            that should have been imported, were imported.  Use
            common names which are user and group names:
 
+           /usr/sbin/ad2openldap healthcheck -N bhodges -v
 
-        6) Setup cron to run ad2openldap periodically as the openldap
+        6) LDIF files are now owned by root, prior to running ad2openldap
+           under the openldap account, change ownership:
+
+           chown openldap /tmp/ad_export*
+
+        7) Setup cron to run ad2openldap periodically as the openldap
            user, performing delta syncs where only changes are 
            brought over from AD.  Example:
 
            # Run ad2openldap deltasync once per hour
+           SHELL=/bin/bash
+           MAILTO=jsmith@example.com
            25 * * * *  openldap  /usr/sbin/ad2openldap deltasync \\
              --dont-blame-ad2openldap -v \\
-             >>/var/log/ad2openldap/ad2openldap.log 2>&1
+             >>/var/log/ad2openldap/ad2openldap.log 2>&1; \\
+             /usr/sbin/ad2openldap healthcheck -N bhodges
 
            It is recommended to have notify_addresses set in the 
            configuration file.  /var/log/ad2openldap should be 
@@ -450,6 +460,10 @@ def setup_information():
 
         If things go awry at any point, look at the verbose output 
         and consider trying the --debug flag.
+
+        Try running ad2openldap manually similar to this:
+
+            # su -s /bin/bash -c "/usr/sbin/ad2openldap deltasync --dont-blame-ad2openldap -v" openldap
 
     """
 
