@@ -502,7 +502,7 @@ def run_command(command, verbose=False, debug=False, fatal=True):
     return_code = child.wait()
     # Filter out password (-w xxxxx) that is common with ldap-utils commands, prior
     # to logging or raising an exception.
-    command = re.sub(r'-w\s*\w+', '-w xxxxx', command)
+    command = re.sub(r'-w\s*.*?(\s|$)', '-w xxxxx ', command)
     if return_code != 0:
         logging.info('A problem has occurred calling %s' % command)
         if fatal:
