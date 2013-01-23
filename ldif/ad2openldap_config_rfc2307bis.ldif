@@ -663,6 +663,8 @@ olcDbConfig: {2}set_lk_max_locks 1500
 olcDbConfig: {3}set_lk_max_lockers 1500
 olcDbIndex: objectClass eq
 olcDbIndex: cn eq,sub
+olcDbIndex: uidNumber eq
+olcDbIndex: gidNumber eq
 structuralObjectClass: olcHdbConfig
 creatorsName: cn=config
 

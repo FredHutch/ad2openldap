@@ -1,4 +1,4 @@
-.TH AD2OPENLDAP: "8" "" "December 2012" "December 2012"
+.TH AD2OPENLDAP: "8" "" "January 2013" "January 2013"
 
 .SH "NAME"
 ad2openldap \- program for populating an OpenLDAP server with Active Directory objects
@@ -29,7 +29,7 @@ ad2openldap \fBrtcclean\fR [\fB--config-file CONFIG_FILE\fR]
 .SH "DESCRIPTION"
 This program is used for replicating user/group information from a Microsoft
 Active Directory server into an OpenLDAP server. ad2openldap exists to: 1) 
-Compensate for Active Directory performance issues and 2) Isolate AD servers 
+Compensate for Active Directory performance issues and 2) isolate AD servers 
 from potential overload from bad cluster applications.
 
 .SH "COMMAND-LINE ACTIONS"
@@ -54,7 +54,8 @@ currently will permanently delete all DITs on this system\fR.
 \fBdeltsync\fR
 .RS 4
 Perform a one-way sync from Active Directory to the ad2openldap DIT, 
-only working with the delta.  Typically run as the openldap user.
+only working with the delta.  Typically run as the openldap user and requires 
+ad_export* files in tmp_dir be owned by this user.
 .RE
 .PP
 \fBhealthcheck\fR
@@ -136,7 +137,7 @@ Perform a full sync (must be run as root):
 ad2openldap fullsync --dont-blame-ad2openldap -v
 .RE
 .PP
-Perform a delta sync (run as openldap user):
+Perform a delta sync (run as openldap user that owns ad2openldap files in tmp_dir):
 .PP
 .RS 2
 ad2openldap deltasync --dont-blame-ad2openldap -v
@@ -189,6 +190,6 @@ Contributor
 .SH "COPYRIGHT"
 .br
 .PP
-Copyright 2011\-2012 Jeff Katcher\&.
+Copyright 2011\-2013 Jeff Katcher\&.
 .PP
 
