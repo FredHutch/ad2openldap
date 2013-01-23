@@ -66,6 +66,11 @@ def main():
     config = load_config(arguments.config_file)
     logging.debug('yaml config file, loaded settings: %s' % config)
 
+    # Exit if it looks as though the config file is untouched.
+    if action != 'setup' and config['smtp_host'] == 'mx.example.com':
+	logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
+	return 1
+
     # The script is presently monolithic... for a future release, it is 
     # planned to have the argument parsing part of the main script, 
     # and to separate most of the ldap and ad code into one 
