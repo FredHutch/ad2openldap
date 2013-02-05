@@ -218,7 +218,7 @@ def notify(notify_addresses, subject, text, config):
             'information in your log file.\n'
             )
 
-        full_message = message.substitute(notify_from=from_address, notify_to=' '.join(notify_addresses), 
+        full_message = message.substitute(notify_from=from_address, notify_to=','.join(notify_addresses), 
             notify_subject=subject, host=host_name.upper(), notify_text=text)
 
 
