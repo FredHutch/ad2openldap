@@ -68,8 +68,8 @@ def main():
 
     # Exit if it looks as though the config file is untouched.
     if action != 'setup' and config['smtp_host'] == 'mx.example.com':
-	logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
-	return 1
+    logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
+    return 1
 
     # The script is presently monolithic... for a future release, it is 
     # planned to have the argument parsing part of the main script, 
@@ -598,9 +598,19 @@ def ad_export_objects(config):
     
     users, users_by_group, dn_uid_map = retrieve_ldap_userinfo(ad_account, ad_account_password, ad_url, ad_base_dn, user_filter, misc_attributes, page_size) 
 
+
     group_gids, groups, excluded_groups = retrieve_ldap_groupinfo(ad_account, ad_account_password, ad_url, ad_base_dn, group_filter, ad_excluded_group, page_size) 
 
+    # It is possible that a group may contain groups but no users.  Make sure to include
+    # any groups in 'groups' dictionary that might have been neglected, as no individual users are 
+    # members
+    for new in groups:
+        if new not in users_by_group:
+            users_by_group[new] = []
+
+
     flatten_groups(groups, users_by_group, users, dn_uid_map)
+
 
     # Write out users, groups and nisinfo to ldif file
     with open(ad_export_file, 'w') as ad_export_fh: 
@@ -620,15 +630,14 @@ def skip_split(s,split_char=',',skip_char='\\'):
         if char == skip_char:
             escape = True          
             continue
-        elif char == split_char and escape == True:
-            partial += char 
-            escape = False
         elif char == split_char and escape == False:
             split.append(partial)
             partial = ""
         else:
             partial += char
- 
+            # It's possible that non-split characters will get escaped
+            escape = False
+
     # append residual partial if it exists
     if partial!="":
         split.append(partial)
@@ -700,6 +709,10 @@ def print_groups(ad_export_fh,groups,group_gids,base,xgroups=[],debug=0):
     gintersect=0
 
     for group in groups.keys():
+        # groupOfNames requires at least one member.  If we've gotten
+        # this far and still don't have any members, skip this group.
+    if not groups[group] or len(groups[group]) < 1:
+            continue
         if group in group_gids and group[-3:]!="-LS" and group not in xgroups:
             ad_export_fh.write("dn: cn="+group+",ou=group,"+base+'\n')
             ad_export_fh.write("cn: "+group+'\n')
@@ -838,6 +851,7 @@ def retrieve_ldap_userinfo(ad_account,ad_account_password,url,base,search_flt,mi
                     dn_uid_map[dn] = current_user
                 users[current_user]=uid
 
+
     return users,groups,dn_uid_map
 
 # returns dictionary of groups with members and gids 
@@ -856,6 +870,8 @@ def retrieve_ldap_groupinfo(ad_account,ad_account_password,url,base,search_flt,a
         if 'name' in crud and 'member' in crud:
             if 'gidNumber' in crud:
                 ggroups[crud['name'][0]]=crud['gidNumber'][0]
+                if crud['name'][0] not in dgroups:
+                    dgroups[crud['name'][0]] = []
 
             if 'distinguishedName' in crud:
                 dgroups[crud['name'][0]]=\
@@ -864,7 +880,6 @@ def retrieve_ldap_groupinfo(ad_account,ad_account_password,url,base,search_flt,a
             # hardcode retrieval of this particular hack
             if crud['name'][0]==ad_excluded_group:
                 xgroups=[x for x in generate_members(crud['member'])]
-
     return ggroups,dgroups,xgroups
 
 

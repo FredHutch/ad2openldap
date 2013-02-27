@@ -1,0 +1,9 @@
+0.10.1
+
+* Fixed non-comma escape character issue where groups with characters such as # were skipped
+* Fixed issue where groups without individual members, but containing nested groups where being skipped
+
+
+0.10.0
+
+* Initial release
