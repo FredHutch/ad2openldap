@@ -68,7 +68,7 @@ def main():
 
     # Exit if it looks as though the config file is untouched.
     if action != 'setup' and config['smtp_host'] == 'mx.example.com':
-    logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
+    	logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
     return 1
 
     # The script is presently monolithic... for a future release, it is 
@@ -711,7 +711,7 @@ def print_groups(ad_export_fh,groups,group_gids,base,xgroups=[],debug=0):
     for group in groups.keys():
         # groupOfNames requires at least one member.  If we've gotten
         # this far and still don't have any members, skip this group.
-    if not groups[group] or len(groups[group]) < 1:
+    	if not groups[group] or len(groups[group]) < 1:
             continue
         if group in group_gids and group[-3:]!="-LS" and group not in xgroups:
             ad_export_fh.write("dn: cn="+group+",ou=group,"+base+'\n')
