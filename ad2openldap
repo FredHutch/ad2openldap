@@ -48,6 +48,7 @@ def main():
     arguments = parse_arguments()
     action = sys.argv[1]
 
+
     # Set up logging.  Show error messages by default, show debugging 
     # info if specified.
     log_format = '%(levelname)s:%(module)s:line %(lineno)s:%(message)s'
@@ -68,8 +69,9 @@ def main():
 
     # Exit if it looks as though the config file is untouched.
     if action != 'setup' and config['smtp_host'] == 'mx.example.com':
-    	logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
-    return 1
+        logging.error('The ad2openldap.conf file must first be configured, unable to proceed, exiting.')
+        return 1
+
 
     # The script is presently monolithic... for a future release, it is 
     # planned to have the argument parsing part of the main script, 
