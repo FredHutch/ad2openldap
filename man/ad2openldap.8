@@ -1,4 +1,4 @@
-.TH AD2OPENLDAP: "8" "" "January 2013" "January 2013"
+.TH AD2OPENLDAP: "8" "" "February 2013" "February 2013"
 
 .SH "NAME"
 ad2openldap \- program for populating an OpenLDAP server with Active Directory objects
@@ -51,7 +51,7 @@ Must be run as root.  \fBUse with caution, this command is destructive and
 currently will permanently delete all DITs on this system\fR.
 .RE
 .PP
-\fBdeltsync\fR
+\fBdeltasync\fR
 .RS 4
 Perform a one-way sync from Active Directory to the ad2openldap DIT, 
 only working with the delta.  Typically run as the openldap user and requires 
@@ -78,75 +78,84 @@ will be permanently lost!
 Options that may be used to modify behavior of actions are listed below.  Note 
 that certain options do not apply to all actions.
 .PP
-\fB-a, --notify-address <notify_address>\fR
+\fB-a, \-\-notify-address <notify_address>\fR
 .RS 4
 Applies to all actions. E-mail address to send notifications to, overrides
 settings in ad2openldap.conf, use multiple times to send to more than 
 one recipient.
 .RE
 .PP
-\fB-C, --config-file <config_file>\fR
+\fB-C, \-\-config-file <config_file>\fR
 .RS 4
 Applies to all actions.  Configuration file to use, defaults to /etc/ad2openldap/ad2openldap.conf.
 .RE
 .PP
-\fB-d, --debug\fR
+\fB-d, \-\-debug\fR
 .RS 4
 Applies to all actions.  Turn debugging output on. 
 .RE
 .PP
-\fB-h, --help\fR
+\fB-h, \-\-help\fR
 .RS 4
 Show help message and exit.
 .RE
 .PP
-\fB-N, --common-name <common_name>\fR
+\fB-N, \-\-common-name <common_name>\fR
 .RS 4
 Applies to \fBhealthcheck\fR action.  Specify a CN to search for. 
 A single matching entry being returned is considered a success.
 .RE
 .PP
-\fB-V, --version\fR
+\fB-V, \-\-version\fR
 .RS 4
 Print the version number and exit.
 .RE
 .PP
-\fB-v, --verbose\fR
+\fB-v, \-\-verbose\fR
 .RS 4
 Turn verbose output on. If redirecting output to an application log file, 
 this option is important. A future release may provide the option of specifying 
 a log file, but for the initial release, output goes to STDOUT and STDERR.
 .RE
 .PP
-\fB-y, --dont-blame-ad2openldap\fR
+\fB-y, \-\-dont-blame-ad2openldap\fR
 .RS 4
 Applies to \fBrtcclean\fR and \fBfullsync\fR actions.  User confirms they understand 
 the command is destructive. 
+.RE
+.PP
+\fB-r, \-\-regex-replace\fR
+.RS 4
+Applies to \fBdelatasync\fR and \fBfullsync\fR actions.  Perform a substitution on 
+text that is dumped from Active Directory.  Simple regular expressions can be passed 
+and matching text will be substituted with the specified string.  Some amount 
+of quoting and escaping may be necessary, and this feature is experimental.  The 
+regular expression and replacement text are double-^^ separated, for example: jsmith^^johnsmith.
 .RE
 .PP
 .SH "EXAMPLES"
 Drop and recreate cn=config, adhering to rfc2307bis:
 .PP
 .RS 2
-ad2openldap rtcclean --dont-blame-ad2openldap -v
+ad2openldap rtcclean \-\-dont-blame-ad2openldap -v
 .RE
 .PP
 Perform a full sync (must be run as root):
 .PP
 .RS 2
-ad2openldap fullsync --dont-blame-ad2openldap -v
+ad2openldap fullsync \-\-dont-blame-ad2openldap -v
 .RE
 .PP
 Perform a delta sync (run as openldap user that owns ad2openldap files in tmp_dir):
 .PP
 .RS 2
-ad2openldap deltasync --dont-blame-ad2openldap -v
+ad2openldap deltasync \-\-dont-blame-ad2openldap -v
 .RE
 .PP
 Perform a healthcheck, looking for a common name (run as openldap user):
 .PP
 .RS 2
-ad2openldap healthcheck --common-name tjohnson
+ad2openldap healthcheck \-\-common-name tjohnson
 .RE
 .SH "NOTES"
 Before getting started, it is necessary to configure settings in ad2openldap.conf 
@@ -154,9 +163,12 @@ which resides in /etc/ad2openldap by default.  The configuration file is
 self-documented.  \fBad2openldap setup\fR displays helpful information for 
 getting up and running.
 .PP
-Troubleshooting - using the --verbose flag is important for troubleshooting.  
+Troubleshooting - using the \-\-verbose flag is important for troubleshooting.  
 Analyzing the current dump, last dump and delta is often important.  These 
-files are specified in ad2openldap.conf.
+files are specified in ad2openldap.conf.  Also it is important to note that 
+should a reboot occur or any event that removes the latest AD LDIF exports, 
+a full import is required, followed by permissions fix-up (read the 
+output from \fBad2openldap setup\fR for details).
 .PP
 Possible failure modes - 1) LDAP server failure - needs restart, possibly 
 followed by forced full update if corrupt or incomplete, 2) Firewall 

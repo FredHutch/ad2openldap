@@ -140,6 +140,8 @@ def main():
             # Uncomment after testing
             ad_export_objects(config)
             
+            ldif_replace(ad_export_file, arguments.regex_replace)
+            
         # If both files exist we have data that is diffable.
         diffable = True if os.path.isfile(ad_export_file) and os.path.isfile(ad_export_previous) else False
 
@@ -251,6 +253,11 @@ def parse_arguments():
     delta_sync.add_argument('--dont-blame-ad2openldap', '-y', action='store_true',
         required=True, dest='delta_sync', default=False,
         help='Sync from Active Directory to OpenLDAP incrementally')
+    delta_sync.add_argument('--regex-replace', '-r', help='Specify a ' + \
+        'regular expression substitution that will be applied to each line of the AD exported ' + \
+	'LDIF file.  Match expression and replacement must be ^^ separated. ' + \
+	'Can be called multiple times and order will be preserved. This feature is experimental',
+        dest='regex_replace', action='append', metavar="'EXPR^^REPLACEMENT'")
     parsers.append(delta_sync)
 
 
@@ -264,6 +271,11 @@ def parse_arguments():
         help='All directory information trees, not only the ad2openldap tree ' + \
         'will be permanently deleted. The base DN synced to by ad2openldap ' + \
         'will be freshly populated. Use with caution') 
+    full_sync.add_argument('--regex-replace', '-r', help='Specify a ' + \
+        'regular expression substitution that will be applied to each line of the AD exported ' + \
+	'LDIF file.  Match expression and replacement must be ^^ separated. ' + \
+	'Can be called multiple times and order will be preserved. This feature is experimental',
+        dest='regex_replace', action='append', metavar="'EXPR^^REPLACEMENT'")
     parsers.append(full_sync)
 
 
@@ -339,6 +351,23 @@ def parse_arguments():
 
     return arguments
 
+
+def ldif_replace(ad_export_file, regex_replace):
+    """
+    Just after exporting from AD, replace text according to regular expressions passed 
+    as command-line arguments.
+    """
+    # Perform substitutions in-memory
+    new_ldif = ""
+    with open(ad_export_file, 'r') as exported:
+        for line in exported:
+            for regex in regex_replace:
+                pattern, replace = string.split(regex, '^^') 
+		line = re.sub(pattern, replace, line)
+            new_ldif += line
+    # Overwrite ad_export_file with transformed version
+    with open(ad_export_file, "w") as out_file:
+        out_file.write(new_ldif)
 
 def load_config(config_file):
     """
