@@ -140,7 +140,8 @@ def main():
             # Uncomment after testing
             ad_export_objects(config)
             
-            ldif_replace(ad_export_file, arguments.regex_replace)
+            if arguments.regex_replace:
+                ldif_replace(ad_export_file, arguments.regex_replace)
             
         # If both files exist we have data that is diffable.
         diffable = True if os.path.isfile(ad_export_file) and os.path.isfile(ad_export_previous) else False
