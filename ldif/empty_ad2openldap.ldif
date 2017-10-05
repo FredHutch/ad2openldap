@@ -1,0 +1,51 @@
+dn: dc=local
+dc: local
+o: local
+objectClass: organization
+objectClass: dcObject
+structuralObjectClass: organization
+entryUUID: 652d8d72-c068-1030-9e97-2b89d068cccf
+entryCSN: 20111221214216.372732Z#000000#000#000000
+
+dn: ou=ldapconfig,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: ldapconfig
+structuralObjectClass: organizationalUnit
+entryUUID: 8fb9517a-c068-1030-9e98-2b89d068cccf
+entryCSN: 20111221214327.753010Z#000000#000#000000
+
+dn: ou=group,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: group
+structuralObjectClass: organizationalUnit
+entryUUID: 8fc09e58-c068-1030-9e99-2b89d068cccf
+entryCSN: 20111221214327.800855Z#000000#000#000000
+
+dn: ou=people,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+structuralObjectClass: organizationalUnit
+entryUUID: 8fc1e8f8-c068-1030-9e9a-2b89d068cccf
+entryCSN: 20111221214327.809320Z#000000#000#000000
+
+dn: ou=netgroup,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: netgroup
+description: nisNetgroup
+structuralObjectClass: organizationalUnit
+entryUUID: af914958-c068-1030-9e9f-2b89d068cccf
+entryCSN: 20111221214421.177748Z#000000#000#000000
+
+dn: ou=autofs,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: autofs
+description: nisMap
+structuralObjectClass: organizationalUnit
+entryUUID: af947f38-c068-1030-9ea0-2b89d068cccf
+entryCSN: 20111221214421.198787Z#000000#000#000000
+
