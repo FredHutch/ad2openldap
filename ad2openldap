@@ -166,7 +166,7 @@ def main():
             if os.path.exists(delta_file) and os.path.getsize(delta_file) > 0: 
                 run_command(ldapmodify_delta_file, verbose=arguments.verbose)
         elif action == 'deltasync' and arguments.delta_sync and not diffable:
-            logging.error('Both %s (ad_export_file and %s (ad_export_previous) ' + \
+            logging.error('Both %s (ad_export_file) and %s (ad_export_previous) ' + \
                           'must be present to determine delta.' % \
                           (ad_export_file, ad_export_previous))
             return 1
