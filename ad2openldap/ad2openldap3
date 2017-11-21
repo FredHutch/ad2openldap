@@ -4,7 +4,7 @@ ad2openldap3 -- a script that performs one-way syncing of certain Active
                 Directory records along with a limited set of attributes, into
                 an OpenLDAP directory information tree.
 
-Development version for Python ldap3
+This is the active development version for Python3 ldap3.
 
 """
 
