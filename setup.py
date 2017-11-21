@@ -2,13 +2,6 @@ from setuptools import setup
 
 __version__ = "1.0.1"
 
-#try:
-#    from pypandoc import convert
-#    read_md = lambda f: convert(f, 'rst')
-#except ImportError:
-#    print("warning: pypandoc module not found, could not convert Markdown to RST")
-#    read_md = lambda f: open(f, 'r').read()
-
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -40,9 +33,10 @@ setup(
     name='ad2openldap',
     version=__version__,
     description='prox is a command line interface to rapidly deploy LXC containers on proxmox from a remote host using proxmox REST API',
-    long_description=open('README.rst', 'r').read(),
+    long_description=open('README.md', 'r').read(),
     packages=['ad2openldap'],
-    scripts=['ad2openldap/ad2openldap'],
+    #scripts=['ad2openldap/ad2openldap','ad2openldap/ad2openldap3'],
+    scripts=['ad2openldap/ad2openldap3'],
     author = 'dipe',
     author_email = 'dp@nowhere.com',
     url = 'https://github.com/FredHutch/ad2openldap',
@@ -50,15 +44,7 @@ setup(
     keywords = ['ldap', 'active directory'], # arbitrary keywords
     classifiers = CLASSIFIERS,
     install_requires=[
-        'subprocess',
+	'ldap3',
         'yaml'
         ],
-    entry_points={
-        # we use console_scripts here to allow virtualenv to rewrite shebangs
-        # to point to appropriate python and allow experimental python 2.X
-        # support.
-        'console_scripts': [
-            'myad2opendap.py=ad2openldap.ad2openldap:main',
-        ]
-    }
 )
