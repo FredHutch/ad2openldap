@@ -1,0 +1,82 @@
+ad2openldap is a tool for replicating user/group information from a Microsoft Active Directory
+server into an OpenLDAP server.
+
+ad2openldap exists to:
+
+::
+
+    Compensate for Active Directory performance issues
+    Isolate AD servers from potential overload from bad cluster applications
+
+Initially ad2openldap worked by taking a complete dump of AD users/groups, stopping OpenLDAP,
+emptying the database, and reloading all of it. As that made OpenLDAP unavailable (sometimes for
+extended periods) during updates, two new methods were implemented. First, a comparison is made
+between the current AD dump and the last one, with only the changes being propagated to OpenLDAP
+live. Second, it's much faster to populate the OpenLDAP database by directly constructing such a
+database from a template (LDIF file) rather than incrementally deleting all and adding all.
+
+For detailed information about using ad2openldap, please see the man page - ad2openldap(8).
+
+To get started after installing the ad2openldap package, several settings must first be configured
+in /etc/ad2openldap/ad2openldap.conf. A note on security, ad2openldap.conf must be 640 and
+root.openldap.
+
+In its current state, ad2opendap is targeted at Ubuntu. With a few slight modifications or perhaps
+only configuration setting changes, it shouldn't be terribly difficult to run on other
+distributions.
+
+An update usually consists of three steps:
+
+::
+
+    Groups, users, and NIS group entries are dumped from AD
+
+    If a previous dump is present on the LDAP server, a comparison is made 
+    between the two updates.  If they differ, a list of LDAP server update 
+    transactions is generated.
+
+    If an update is necessary due to changes from last time, the update 
+    transactions are entered into the local LDAP server.
+
+On each LDAP server, the following tools are used:
+
+::
+
+    ad2openldap - update script invoked by cron via /etc/crontab
+
+In the event that an incremental update is not possible or bypassed using the command line parameter
+'--fullsync', a full update will instead occur.
+
+A full update:
+
+::
+
+    Dumps groups, users and NIS group entities from AD
+    Locks out remote access to the LDAP server via the firewall
+    Shuts down the LDAP server
+    Writes a new blank database using the LDIF template
+    Directly imports AD dump into database
+    Restarts LDAP server
+    Removes firewall block on LDAP server
+
+Troubleshooting:
+
+Use the --verbose flag to log to STDOUT/STDERR.
+
+The AD dumps and diffs are in /tmp by default:
+
+::
+
+    ad_export.ldif - current dump
+    ad_export.ldif.0 - last dump
+    ad_export_delta.diff - computed differences between these files
+
+Possible failure modes are:
+
+LDAP server failure - needs restart, possibly followed by forced full update if corrupt or
+incomplete
+
+Firewall block still improperly active - look at update script for removal syntax (this failure is
+very unlikely given the current process)
+
+Bad or conflicting AD entities - a forced full update should remedy this
