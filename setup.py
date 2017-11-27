@@ -1,6 +1,6 @@
 from setuptools import setup
 
-__version__ = "1.0.1.1"
+__version__ = "1.0.1.2"
 
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
@@ -43,8 +43,8 @@ setup(
     download_url = 'https://github.com/FredHutch/ad2openldap/tarball/%s' % __version__,
     keywords = ['ldap', 'active directory'], # arbitrary keywords
     classifiers = CLASSIFIERS,
+    # yaml is apparently default now?
     install_requires=[
-	'ldap3',
-        'yaml'
+	'ldap3'
         ],
 )
