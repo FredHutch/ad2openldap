@@ -33,7 +33,7 @@ setup(
     name='ad2openldap',
     version=__version__,
     description='prox is a command line interface to rapidly deploy LXC containers on proxmox from a remote host using proxmox REST API',
-    long_description=open('README.md', 'r').read(),
+    long_description=open('README.rst', 'r').read(),
     packages=['ad2openldap'],
     #scripts=['ad2openldap/ad2openldap','ad2openldap/ad2openldap3'],
     scripts=['ad2openldap/ad2openldap3'],
