@@ -1,6 +1,6 @@
 from setuptools import setup
 
-__version__ = "1.0.1.2"
+__version__ = "1.0.1.3"
 
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
@@ -47,4 +47,12 @@ setup(
     install_requires=[
 	'ldap3'
         ],
+    entry_points={
+        # we use console_scripts here to allow virtualenv to rewrite shebangs
+        # to point to appropriate python and allow experimental python 2.X
+        # support.
+        'console_scripts': [
+            'ad2openldap3.py=ad2openldap3.ad2openldap3:main',
+        ]
+    }
 )
