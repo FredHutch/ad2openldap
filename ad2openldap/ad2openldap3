@@ -4,7 +4,7 @@ ad2openldap3 -- a script that performs one-way syncing of certain Active
                 Directory records along with a limited set of attributes, into
                 an OpenLDAP directory information tree.
 
-This is the active development version for Python3 ldap3.
+Python3 port using ldap3
 
 """
 
@@ -182,7 +182,7 @@ def main():
                 logging.error('Only the root user can perform a rtc clean')
                 return 1
             rtc_template = Template(open(config['rtc_ldif']).read())
-            rtc_substituted = rtc_template.safe_substitute(ssha=generate_ssha(config['bind_dn_password']))
+            rtc_substituted = rtc_template.safe_substitute(ssha=generate_ssha(config['bind_dn_password']).decode())
             with open(os.path.join(tmp_dir, config['rtc_substituted_file']), 'w') as rtc_substituted_file:
                 rtc_substituted_file.write(rtc_substituted)
             run_command(iptables_add, verbose=arguments.verbose)
@@ -565,7 +565,9 @@ def generate_ssha(password):
     Generate a salta sha1 hash.
     """
     salt = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(4))
-    return base64.b64encode(hashlib.sha1(password + salt).digest() + salt)
+
+    # encode added to make python3 happy    
+    return base64.b64encode(hashlib.sha1((password+salt).encode('utf-8')).digest() + salt.encode('utf-8'))
 
 
 def ldap_tree_dir_clean(ldap_tree_dir):
