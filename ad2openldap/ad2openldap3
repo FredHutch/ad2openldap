@@ -1048,7 +1048,7 @@ def ldif_diff(config):
 def compute_hash(entry):
     m=hashlib.md5()
     for part in sorted(entry):
-        m.update(part)
+        m.update(part.encode('utf-8'))
     return(m.digest())
 
 
