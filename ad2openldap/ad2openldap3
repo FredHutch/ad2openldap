@@ -1021,17 +1021,17 @@ def ldif_diff(config):
         with open(delta_file, 'w') as diff_file:
 
             # diff old against new for deletions      
-            for ou_key,ou_value in old_ldif.iteritems():
+            for ou_key,ou_value in old_ldif.items():
                 logging.info("ad_export_previous -- ou: %s, count: %i" % (ou_key, len(old_ldif[ou_key])))
-                for key,value in ou_value.iteritems():
+                for key,value in ou_value.items():
                     if key not in new_ldif[ou_key]:
                         write_entry(value[1],"delete",diff_file)
 
             # diff new against old for adds and changes
-            for ou_key,ou_value in new_ldif.iteritems():
+            for ou_key,ou_value in new_ldif.items():
                 diffs=0
                 logging.info("ad_export_file -- ou: %s, count: %i" % (ou_key, len(new_ldif[ou_key])))
-                for key,value in ou_value.iteritems():
+                for key,value in ou_value.items():
                     if key not in old_ldif[ou_key]:
                         write_entry(value[1],"add",diff_file)
                     else:
