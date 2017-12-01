@@ -173,7 +173,7 @@ def main():
             logging.error('Both %s (ad_export_file) and %s (ad_export_previous) must be present to determine delta.' % (ad_export_file, ad_export_previous))
             return 1
         elif action == 'healthcheck' and arguments.common_name:
-            health_check(arguments.common_name, config)
+            health_check(arguments.common_name,config,verbose=arguments.verbose)
         elif action == 'setup':
             setup_information()
         elif action == 'rtcclean' and arguments.rtc_clean:
@@ -185,6 +185,7 @@ def main():
             rtc_substituted = rtc_template.safe_substitute(ssha=generate_ssha(config['bind_dn_password']).decode())
             with open(os.path.join(tmp_dir, config['rtc_substituted_file']), 'w') as rtc_substituted_file:
                 rtc_substituted_file.write(rtc_substituted)
+
             run_command(iptables_add, verbose=arguments.verbose)
             run_command(slapd_stop, verbose=arguments.verbose, fatal=False)
             ldap_rtc_parent_dir_clean(ldap_rtc_parent_dir)
@@ -417,22 +418,31 @@ def validate_config(config):
     pass
 
 
-def health_check(common_name, config):
+def health_check(common_name, config, verbose=False):
     ldap_conn=open_ldap(config['ldap_url'])
 
     ldap_conn.search(search_base=config['base_dn'],search_scope=ldap3.SUBTREE,
         attributes=['cn'],
         search_filter="(cn=%s)" % common_name)
 
+    if verbose:
+        print("Results of search for cn: %s -- %s" % 
+            (common_name,ldap_conn.entries)) 
     logging.debug("Results of search for cn: %s -- %s" % 
         (common_name,ldap_conn.entries)) 
     results_count=len(ldap_conn.entries)
 
     if results_count == 1:
+        if verbose:
+            print('Successful search performed for CN: %s' % common_name)
         logging.info('Successful search performed for CN: %s' % common_name)
     else:
-        raise LDAPError('Health check returned %i results for cn: %s' % 
+        if verbose:
+            print('Health check returned %i results for cn: %s' %
+                (results_count, common_name) ) 
+        logging.error('Health check returned %i results for cn: %s' %
             (results_count, common_name) ) 
+        return 1
         
     return 0
 
