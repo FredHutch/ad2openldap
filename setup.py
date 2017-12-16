@@ -32,20 +32,22 @@ CLASSIFIERS = [
 setup(
     name='ad2openldap',
     version=__version__,
-    description='prox is a command line interface to rapidly deploy LXC containers on proxmox from a remote host using proxmox REST API',
+    description='ad2openldap is a lighweight Active Directory to Openldap replicator that helps replacing an IAM solution such as Centrify',
     long_description=open('README.rst', 'r').read(),
     packages=['ad2openldap'],
     #scripts=['ad2openldap/ad2openldap','ad2openldap/ad2openldap3'],
     scripts=['ad2openldap/ad2openldap3'],
-    author = 'dipe',
+    author = 'Jeff Katcher, Brian Hodges',
     author_email = 'dp@nowhere.com',
     url = 'https://github.com/FredHutch/ad2openldap',
     download_url = 'https://github.com/FredHutch/ad2openldap/tarball/%s' % __version__,
-    keywords = ['ldap', 'active directory'], # arbitrary keywords
+    keywords = ['ldap', 'active directory', 'IAM'], # arbitrary keywords
     classifiers = CLASSIFIERS,
     # yaml is apparently default now?
+    # wheel is not default 
     install_requires=[
-	'ldap3'
+	'ldap3',
+        'wheel'
         ],
     entry_points={
         # we use console_scripts here to allow virtualenv to rewrite shebangs
