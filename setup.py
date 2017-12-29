@@ -20,6 +20,7 @@ CLASSIFIERS = [
     "Operating System :: POSIX :: Other",
     "Operating System :: Unix",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -44,9 +45,9 @@ setup(
     keywords = ['ldap', 'active directory', 'IAM'], # arbitrary keywords
     classifiers = CLASSIFIERS,
     # yaml is apparently default now?
-    # wheel is not default 
+    # wheel is not default
     install_requires=[
-	'ldap3',
+	   'ldap3',
         'wheel'
         ],
     entry_points={
