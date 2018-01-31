@@ -57,7 +57,7 @@ def config_logging(arguments):
 def main():
     if len(sys.argv)<2:
         logging.error('No action specified, exiting.')
-        run_command("/usr/games/fortune",echo=True)
+        #run_command("/usr/games/fortune",echo=True)
         return 1
 
     action = sys.argv[1]
