@@ -1,6 +1,6 @@
 from setuptools import setup
 
-__version__ = "1.0.1.3"
+__version__ = "1.0.1.4"
 
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
@@ -47,7 +47,7 @@ setup(
     # yaml is apparently default now?
     # wheel is not default
     install_requires=[
-	   'ldap3',
+        'ldap3',
         'wheel'
         ],
     entry_points={
