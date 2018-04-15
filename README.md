@@ -15,7 +15,8 @@ In 2017 we observed that newer solutions have grown in complexity (SSSD, Centrif
 but have not been able to match ad2openldap in performance and reliability (SSSD).
 As we are migrating more services to cloud we continue to benefit from LDAP
 caches/replicas that provide low latency ldap services and ad2openldap continues
-to be a critical piece of infrastructure on more than 700 servers/compute nodes.
+to be a critical piece of infrastructure on more than 2000 servers/compute nodes
+on premise and in AWS and Google cloud.
 We decided to port the tool to Python3, add an easy installer via pip3 and test
 it on newer OS. We hope it will be as useful to others as it is to us.
 
@@ -29,14 +30,14 @@ remember this password.
     sudo apt install -y python3-pip slapd
     sudo pip3 install ad2openldap
 
-#### RHEL/CentOS 6
+#### RHEL/CentOS 6 (untested in 2018)
 
     sudo yum -y install epel-release
     sudo yum -y install python34 python34-setuptools python34-devel gcc slapd
     sudo easy_install-3.4 pip
     sudo pip3 install ad2openldap
 
-#### RHEL/CentOS 7
+#### RHEL/CentOS 7 (untested in 2018)
 
     sudo yum -y install python??
     sudo pip3 install ad2openldap
