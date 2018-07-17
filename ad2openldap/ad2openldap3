@@ -710,7 +710,7 @@ def skip_split(s,split_char=',',skip_char='\\'):
 # utility function to print dictionary attribute if possible
 def print_attr(ad_export_fh,user,attr):
     if attr in user:
-        ad_export_fh.write(attr+": "+user[attr]+'\n')
+        ad_export_fh.write(attr+": %s\n" % user[attr].encode('unicode_escape').decode('ascii'))
 
 
 # prints out the nisinfo string that was previously built
