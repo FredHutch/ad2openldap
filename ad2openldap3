@@ -9,6 +9,7 @@ Python3 port using ldap3
 """
 
 import argparse
+import atexit
 import base64
 import datetime
 import hashlib
@@ -65,9 +66,9 @@ def pid_exists(pid):
     else:
         return True # no error, we can send a signal to the process
 
-# check if pid_file exists - if creator dead, recreate lock for current pid
+# create pid_file only if non-existent or pid still active
 def create_pid_file(pid_file):
-    if os.path.isfile(pid_file):
+    try:
         # Notify and log here
         with open(pid_file,'r') as f:
             pid=f.read()
@@ -77,12 +78,16 @@ def create_pid_file(pid_file):
             logging.critical('%s already exists for %s, exiting' % 
                 (pid_file,pid))
             return 1
-        else:
+        else: # if creator dead, proceed to recreate lock
             logging.warning('%s already exists for %s, defunct' % 
                 (pid_file,pid))
+    except FileNotFoundError:
+        pass
 
     pid = str(os.getpid())
-    open(pid_file, 'w').write(pid)
+    with open(pid_file,'w') as f:
+        f.write(pid)
+    atexit.register(os.unlink,pid_file)
 
     return 0
 
@@ -178,7 +183,6 @@ def main():
             # Only root can perform a full sync due to OS-level permissions.
             if pwd.getpwuid(os.getuid()).pw_name != 'root':
                 logging.error('Only the root user can perform a full sync')
-                os.unlink(pid_file)
                 return 1
             # Stop slapd, clean-up ldap dir, quickload DIT skeleton and 
             # all AD records to import.
@@ -197,7 +201,6 @@ def main():
                     fatal=False)
         elif action == 'deltasync' and arguments.delta_sync and not diffable:
             logging.error('Both %s (ad_export_file) and %s (ad_export_previous) must be present to determine delta.' % (ad_export_file, ad_export_previous))
-            os.unlink(pid_file)
             return 1
         elif action == 'healthcheck' and arguments.common_name:
             health_check(arguments.common_name,config,verbose=arguments.verbose)
@@ -207,7 +210,6 @@ def main():
             # Only root can perform a rtc clean due to OS-level permissions.
             if pwd.getpwuid(os.getuid()).pw_name != 'root':
                 logging.error('Only the root user can perform a rtc clean')
-                os.unlink(pid_file)
                 return 1
             rtc_template = Template(open(config['rtc_ldif']).read())
             rtc_substituted = rtc_template.safe_substitute(ssha=generate_ssha(config['bind_dn_password']).decode())
@@ -231,7 +233,6 @@ def main():
             exc_traceback)), config)
         raise
     finally:
-        os.unlink(pid_file)
         logging.info('ad2openldap - finished execution at %s' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
