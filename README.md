@@ -57,7 +57,7 @@ remember this password.
     # The base DN to use from Active Directory, under which objects are  retrieved.
     ad_base_dn: dc=example,dc=com
 
-**execute the setup script and enter items when prompted**
+execute the setup script and enter items when prompted
 
     ad2openlap3 setup
 
@@ -68,6 +68,10 @@ then create a cronjob in file /etc/cron.d/ad2openldap that runs ca. every 15 min
     */15 * * * *   root /usr/local/bin/ad2openldap3 deltasync
        --dont-blame-ad2openldap -v >>/var/log/ad2openldap/ad2openldap.log 2>&1 ;
        /usr/local/bin/ad2openldap3 healthcheck -N username
+
+It is strongly recommended to up the default open files limit for slapd to at least 8192
+
+    echo “ulimit -n 8192” >> /etc/default/slapd (or /etc/defaults/slapd depending on distribution)
 
 ## Troubleshooting
 
