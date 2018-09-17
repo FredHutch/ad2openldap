@@ -206,6 +206,8 @@ def main():
             health_check(arguments.common_name,config,verbose=arguments.verbose)
         elif action == 'setup':
             setup_information()
+        elif action == 'testretrieve':
+            ad_export_objects(config,True) # True is retrieve only mode
         elif action == 'rtcclean' and arguments.rtc_clean:
             # Only root can perform a rtc clean due to OS-level permissions.
             if pwd.getpwuid(os.getuid()).pw_name != 'root':
@@ -328,6 +330,10 @@ def parse_arguments():
         'pertaining to the setup of ad2openldap on this system')       
     parsers.append(setup)
 
+    # testretrieve subcommand
+    test_retrieve = subparsers.add_parser('testretrieve', 
+        help='Test retrieval from AD without updating LDAP')
+    parsers.append(test_retrieve)
 
     # rtc subcommand
     rtc_clean = subparsers.add_parser('rtcclean', help='Install a clean copy of ' + \
@@ -658,7 +664,7 @@ def ldap_rtc_fix_perms(ldap_rtc_parent_dir, ldap_rtc_dir, ldap_rtc_dir_perms, op
                 getpwnam(openldap_user).pw_uid, getgrnam(openldap_group).gr_gid)
 
 
-def ad_export_objects(config):
+def ad_export_objects(config,retrieve_only=False):
     """
     Handle flow of AD object exporting.
     """
@@ -691,13 +697,15 @@ def ad_export_objects(config):
     group_gids, groups, excluded_groups = retrieve_ldap_groupinfo(ldap_conn,
         ad_base_dn, group_filter, ad_excluded_group) 
 
+    if retrieve_only:
+       return 
+
     # It is possible that a group may contain groups but no users.  
     # Make sure to include any groups in 'groups' dictionary that 
     # might have been neglected, as no individual users are members
     for new in groups:
         if new not in users_by_group:
             users_by_group[new] = []
-
 
     flatten_groups(groups, users_by_group, users, dn_uid_map)
 
@@ -839,6 +847,7 @@ def generate_ldap(ldap_conn,base,search_flt):
     ldap_entries=ldap_conn.extend.standard.paged_search(search_base=base,
         search_scope=ldap3.SUBTREE,
         attributes=ldap3.ALL_ATTRIBUTES,
+	paged_size=500,
         search_filter=search_flt)
 
     for crud in ldap_entries:
