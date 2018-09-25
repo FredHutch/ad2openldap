@@ -668,5 +668,6 @@ olcDbIndex: memberUid eq
 olcDbIndex: uidNumber eq
 olcDbIndex: gidNumber eq
 olcDbIndex: member eq
+olcDbIndex: uniqueMember eq
 structuralObjectClass: olcHdbConfig
 creatorsName: cn=config
