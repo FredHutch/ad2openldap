@@ -67,7 +67,7 @@ def pid_exists(pid):
         return True # no error, we can send a signal to the process
 
 # create pid_file only if non-existent or pid still active
-def create_pid_file(pid_file):
+def create_pid_file(pid_file,notify_addresses=None):
     try:
         # Notify and log here
         with open(pid_file,'r') as f:
@@ -155,7 +155,7 @@ def main():
 
     # Use a pid file to make sure two copies don't run in 
     # parallel or to notify and log that the last run exited prematurely.
-    if (create_pid_file(pid_file)):
+    if (create_pid_file(pid_file,notify_addresses)):
        return 1
 
     try:
