@@ -847,7 +847,7 @@ def generate_ldap(ldap_conn,base,search_flt):
     ldap_entries=ldap_conn.extend.standard.paged_search(search_base=base,
         search_scope=ldap3.SUBTREE,
         attributes=ldap3.ALL_ATTRIBUTES,
-	paged_size=500,
+        paged_size=500,
         search_filter=search_flt)
 
     for crud in ldap_entries:
