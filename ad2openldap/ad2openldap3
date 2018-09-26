@@ -67,26 +67,24 @@ def pid_exists(pid):
         return True # no error, we can send a signal to the process
 
 # create pid_file only if non-existent or pid still active
-def create_pid_file(pid_file,config,notify_addresses=None):
+def create_pid_file(pid_file):
     try:
         # Notify and log here
         with open(pid_file,'r') as f:
-            pid=f.read()
-        if pid_exists(int(pid)):
-            notify(notify_addresses,'Unable to start',
-                '%s already exists for %s, exiting' % (pid_file,pid),config)
-            logging.critical('%s already exists for %s, exiting' % 
+            pid=int(f.read())
+        if pid_exists(pid):
+            logging.critical('%s already exists for %d, exiting' % 
                 (pid_file,pid))
-            return 1
+            return pid
         else: # if creator dead, proceed to recreate lock
-            logging.warning('%s already exists for %s, defunct' % 
+            logging.warning('%s already exists for %d, defunct' % 
                 (pid_file,pid))
     except FileNotFoundError:
         pass
 
-    pid = str(os.getpid())
+    pid=os.getpid()
     with open(pid_file,'w') as f:
-        f.write(pid)
+        f.write(str(pid))
     atexit.register(os.unlink,pid_file)
 
     return 0
@@ -155,7 +153,10 @@ def main():
 
     # Use a pid file to make sure two copies don't run in 
     # parallel or to notify and log that the last run exited prematurely.
-    if (create_pid_file(pid_file,config,notify_addresses)):
+    pid=create_pid_file(pid_file)
+    if pid:
+	notify(notify_addresses,'Unable to start',
+                '%s already exists for %d, exiting' % (pid_file,pid),config)
        return 1
 
     try:
