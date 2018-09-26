@@ -155,9 +155,9 @@ def main():
     # parallel or to notify and log that the last run exited prematurely.
     pid=create_pid_file(pid_file)
     if pid:
-	notify(notify_addresses,'Unable to start',
-                '%s already exists for %d, exiting' % (pid_file,pid),config)
-       return 1
+        notify(notify_addresses,'Unable to start',
+            '%s already exists for %d, exiting' % (pid_file,pid),config)
+        return 1
 
     try:
         # Make certain ownership and permissions are correct 
