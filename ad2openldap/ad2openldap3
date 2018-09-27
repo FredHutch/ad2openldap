@@ -92,7 +92,6 @@ def create_pid_file(pid_file):
 def main():
     if len(sys.argv)<2:
         logging.error('No action specified, exiting.')
-        #run_command("/usr/games/fortune",echo=True)
         return 1
 
     action = sys.argv[1]
@@ -587,9 +586,9 @@ def perms_check(path, perms):
     assert mode == perms, '%s is mode %s, %s is required' % (path, mode, perms)
 
 
-def run_command(command, verbose=False, fatal=True, echo=False):
+def run_command(command, verbose=False, fatal=True):
     child = subprocess.Popen(command.split(),
-        stdout=None if echo else open('/dev/null', 'w'),
+        stdout=None if verbose else subprocess.DEVNULL,
         stderr=subprocess.STDOUT)
     return_code = child.wait()
 
