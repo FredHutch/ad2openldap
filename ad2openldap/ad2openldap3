@@ -19,6 +19,7 @@ import pwd
 import random
 import re
 import shutil
+import signal
 import smtplib
 import socket
 import subprocess
@@ -73,9 +74,15 @@ def create_pid_file(pid_file):
         with open(pid_file,'r') as f:
             pid=int(f.read())
         if pid_exists(pid):
-            logging.critical('%s already exists for %d, exiting' % 
-                (pid_file,pid))
-            return pid
+            if time.time()-os.path.getctime(pid_file)>20*60:
+                logging.warning('%s already exists for %d, expired' %
+                    (pid_file,pid))
+                os.kill(pid,signal.SIGTERM) # kill hung process
+                time.sleep(2) # short wait allowing lockfile reap		
+            else:
+                logging.critical('%s already exists for %d, exiting' % 
+                    (pid_file,pid))
+                return pid
         else: # if creator dead, proceed to recreate lock
             logging.warning('%s already exists for %d, defunct' % 
                 (pid_file,pid))
