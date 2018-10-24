@@ -14,6 +14,7 @@ import base64
 import datetime
 import hashlib
 import logging
+import logging.handlers
 import os
 import pwd
 import random
@@ -52,6 +53,10 @@ def config_logging(arguments):
     else:
         log_level = logging.ERROR
     logging.basicConfig(stream=sys.stdout, format=log_format, level=log_level)
+
+    sl_handler=logging.handlers.SysLogHandler(address='/dev/log')
+    sl_handler.setFormatter(logging.Formatter(log_format))
+    logging.getLogger().addHandler(sl_handler)
 
     logging.info('ad2openldap - starting execution at %s' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     logging.debug('Parsed arguments: %s' % arguments)
