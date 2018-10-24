@@ -274,6 +274,7 @@ def notify(notify_addresses, subject, text, config):
             notify_to=','.join(notify_addresses),
             notify_subject=subject, host=host_name.upper(), notify_text=text)
 
+	logging.error(text) # should be logged if severe enough for notify
 
         smtp = smtplib.SMTP(smtp_host)
         smtp.sendmail(from_address, notify_addresses, full_message)
