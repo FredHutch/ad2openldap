@@ -842,7 +842,17 @@ def print_groups(ad_export_fh,groups,group_gids,base,xgroups=[],debug=0):
     if debug:
         logging.debug("gintersect " + str(gintersect))
 
+# have to isolate bracketed region in stringified conn
+def ldap_conn_endpoints(conn):
+    brackets=re.search(r"<([A-Za-z0-9 .:-]+)>",str(conn))
+    if brackets:
+        endpoints=re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}',
+            brackets.group(0))
+        if len(endpoints)==2:
+            return(endpoints[1])
 
+    return ''
+	
 # open connection to LDAP server
 def open_ldap(url,account='',password=''):
     ldap_server=ldap3.Server(url,get_info=ldap3.ALL)
@@ -852,6 +862,10 @@ def open_ldap(url,account='',password=''):
     if not ldap_conn.bind():
        logging.error("open_ldap: error in bind %d" % ldap_conn.result)
 
+    remote=ldap_conn_endpoints(ldap_conn)
+    if remote:
+        logging.info("open_ldap: connected to %s" % remote)
+	
     return ldap_conn
 
 
