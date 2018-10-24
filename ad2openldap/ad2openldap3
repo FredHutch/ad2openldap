@@ -877,9 +877,13 @@ def generate_ldap(ldap_conn,base,search_flt):
         paged_size=500,
         search_filter=search_flt)
 
-    for crud in ldap_entries:
-        if 'attributes' in crud:
-            yield crud['attributes'] 
+    try:
+        for crud in ldap_entries:
+            if 'attributes' in crud:
+                yield crud['attributes'] 
+    except LDAPOperationResult as e:
+        logging.error("generate_ldap",e)
+        raise
 
 # if field is present in crud, add to uid
 def add_user_field(uid,field,crud):
