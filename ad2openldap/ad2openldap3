@@ -166,8 +166,8 @@ def main():
     # parallel or to notify and log that the last run exited prematurely.
     pid=create_pid_file(pid_file)
     if pid:
-        notify(notify_addresses,'Unable to start',
-            '%s already exists for %d, exiting' % (pid_file,pid),config)
+        #notify(notify_addresses,'Unable to start',
+        #    '%s already exists for %d, exiting' % (pid_file,pid),config)
         return 1
 
     try:
@@ -881,7 +881,7 @@ def generate_ldap(ldap_conn,base,search_flt):
         for crud in ldap_entries:
             if 'attributes' in crud:
                 yield crud['attributes'] 
-    except LDAPOperationResult as e:
+    except ldap3.core.exceptions.LDAPOperationResult as e:
         logging.error("generate_ldap",e)
         raise
 
