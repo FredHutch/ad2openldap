@@ -778,7 +778,9 @@ def print_users(ad_export_fh,users,base,misc_attrs,nobody,def_shell=""):
         if 'uidNumber' not in user:
             logging.error('no uidNumber in %s' % user)
             continue
-        ad_export_fh.write("dn: uid="+user['uid']+",ou=people,"+base+'\n')
+        if '\xf1' in user['uid']: # vaya con ntilde
+            user['uid']=user['uid'].replace('\xf1','n')
+	ad_export_fh.write("dn: uid="+user['uid']+",ou=people,"+base+'\n')
         ad_export_fh.write("cn: "+user['uid']+'\n')
         ad_export_fh.write("uid: "+user['uid']+'\n')
         ad_export_fh.write("objectclass: account"+'\n')
