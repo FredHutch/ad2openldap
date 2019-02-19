@@ -1142,7 +1142,7 @@ def parse_ldif(ldif_filename):
     p=re.compile('ou=(\S+)[,\n]')
 
     try:
-        with open(ldif_filename,'r') as f:
+        with open(ldif_filename,'r',encoding='utf-8') as f:
             for line in f:
                 line_s=line.strip()
                 if in_entry==0:
