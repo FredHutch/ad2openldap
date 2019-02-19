@@ -723,7 +723,7 @@ def ad_export_objects(config,retrieve_only=False):
     flatten_groups(groups, users_by_group, users, dn_uid_map)
 
     # Write out users, groups and nisinfo to ldif file
-    with open(ad_export_file, 'w') as ad_export_fh: 
+    with open(ad_export_file, 'w', encoding='utf-8') as ad_export_fh: 
         print_nisinfo(ad_export_fh, nisinfo)
         print_users(ad_export_fh, users, base_dn, misc_attributes, default_gid,
             default_shell)
@@ -778,8 +778,6 @@ def print_users(ad_export_fh,users,base,misc_attrs,nobody,def_shell=""):
         if 'uidNumber' not in user:
             logging.error('no uidNumber in %s' % user)
             continue
-        if '\xf1' in user['uid']: # vaya con ntilde
-            user['uid']=user['uid'].replace('\xf1','n')
         ad_export_fh.write("dn: uid="+user['uid']+",ou=people,"+base+'\n')
         ad_export_fh.write("cn: "+user['uid']+'\n')
         ad_export_fh.write("uid: "+user['uid']+'\n')
