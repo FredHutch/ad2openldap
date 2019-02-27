@@ -1097,7 +1097,7 @@ def ldif_diff(config):
     if len(old_ldif)!=len(new_ldif):
         raise ValueError('Number of OUs is different.  old: %s, new: %s' % (old_ldif.keys(), new_ldif.keys() ))
     else:
-        with open(delta_file, 'w') as diff_file:
+        with open(delta_file, 'w', encoding='utf-8') as diff_file:
 
             # diff old against new for deletions      
             for ou_key,ou_value in old_ldif.items():
