@@ -40,7 +40,7 @@ from string import Template
 __author__ = "Jeff Katcher"
 __credits__ = ["Dirk Petersen","Brian Hodges"]
 __license__ = "GPLv3"
-__version__ = "0.20"
+__version__ = "0.25"
 
 def config_logging(arguments):
     # Set up logging.  Show error messages by default, show debugging 
@@ -870,10 +870,10 @@ def open_ldap(url,account='',password=''):
 
 
 # generator encapulating paged ldap retrieval
-def generate_ldap(ldap_conn,base,search_flt):
+def generate_ldap(ldap_conn,base,search_flt,attrs=ldap3.ALL_ATTRIBUTES):
     ldap_entries=ldap_conn.extend.standard.paged_search(search_base=base,
         search_scope=ldap3.SUBTREE,
-        attributes=ldap3.ALL_ATTRIBUTES,
+        attributes=attrs,
         paged_size=500,
         search_filter=search_flt)
 
@@ -885,9 +885,13 @@ def generate_ldap(ldap_conn,base,search_flt):
         logging.error("generate_ldap",e)
         raise
 
+# cleaner way of packaging field in dict and field not null
+def exists(field,crud):
+    return field in crud and crud[field]
+
 # if field is present in crud, add to uid
 def add_user_field(uid,field,crud):
-    if field in crud:
+    if exists(field,crud):
         uid[field]=crud[field]
 
 def generate_members(member_list):
@@ -903,13 +907,16 @@ def retrieve_ldap_userinfo(user_conn,base,search_flt,misc_attrs):
     groups={}
     dn_uid_map={}
 
-    for crud in generate_ldap(user_conn,base,search_flt):
-        if 'uid' in crud:
+    attrs=['uid','memberOf','uidNumber','employeeID','gidNumber',
+        'unixHomeDirectory','distinguishedName']+misc_attrs
+
+    for crud in generate_ldap(user_conn,base,search_flt,attrs):
+        if exists('uid',crud):
             current_user=crud['uid'][0]
             if current_user in users:
                 logging.warning('duplicate uid %s!' % current_user)
             else:
-                if 'memberOf' in crud:
+                if exists('memberOf',crud):
                     for gmember in generate_members(crud['memberOf']):
                         if gmember in groups:
                             groups[gmember].append(current_user)
@@ -920,15 +927,15 @@ def retrieve_ldap_userinfo(user_conn,base,search_flt,misc_attrs):
 
                 uid['uid']=current_user
 
-                if 'uidNumber' in crud:
+                if exists('uidNumber',crud):
                     uid['uidNumber']=crud['uidNumber']
-                elif 'employeeID' in crud:
+                elif exists('employeeID',crud):
                     uid['uidNumber']=crud['employeeID']
 
                 for attr in ['gidNumber','unixHomeDirectory']+misc_attrs:
                     add_user_field(uid,attr,crud)
                 
-                if 'distinguishedName' in crud:
+                if exists('distinguishedName',crud):
                     dn = crud['distinguishedName']
                     dn_uid_map[dn] = current_user
                 users[current_user]=uid
@@ -947,14 +954,16 @@ def retrieve_ldap_groupinfo(ldap_conn,base,search_flt,ad_excluded_group):
     # list of exclusions from group 'ExcludedFromLDAPSync'
     xgroups=[]
 
-    for crud in generate_ldap(ldap_conn,base,search_flt):
-        if 'name' in crud and 'member' in crud:
-            if 'gidNumber' in crud:
+    attrs=['name','member','gidNumber','distinguishedName']
+
+    for crud in generate_ldap(ldap_conn,base,search_flt,attrs):
+        if exists('name',crud) and exists('member',crud):
+            if exists('gidNumber',crud):
                 ggroups[crud['name']]=crud['gidNumber']
                 if crud['name'] not in dgroups:
                     dgroups[crud['name']] = []
 
-            if 'distinguishedName' in crud:
+            if exists('distinguishedName',crud):
                 dgroups[crud['name']]=\
                     [crud['distinguishedName'],crud['member']]
 
