@@ -40,7 +40,7 @@ from string import Template
 __author__ = "Jeff Katcher"
 __credits__ = ["Dirk Petersen","Brian Hodges"]
 __license__ = "GPLv3"
-__version__ = "0.25"
+__version__ = "0.26"
 
 def config_logging(arguments):
     # Set up logging.  Show error messages by default, show debugging 
@@ -1049,7 +1049,7 @@ def flatten_groups(groups,ugroups,users,dn_uid_map):
 
 def print_ldap_list(crud,attr):
     ldap_list = ''
-    if attr in crud:
+    if exists(attr,crud):
         for item in sorted(crud[attr]):
             ldap_list += attr+": "+item+'\n'
     return ldap_list
@@ -1061,9 +1061,11 @@ def retrieve_ldap_nisinfo(ldap_conn,base,dst_base,search_flt):
 
     nisinfo = ''
 
-    for crud in generate_ldap(ldap_conn,base,search_flt):
+    attrs=['cn','nisNetgroupTriple','objectClass','nisMapName','nisMapEntry']
+
+    for crud in generate_ldap(ldap_conn,base,search_flt,attrs):
         if 'nisNetgroup' in crud['objectClass']:
-            if 'cn' in crud and 'nisNetgroupTriple' in crud:
+            if exists('cn',crud) and exists('nisNetgroupTriple',crud):
                 nisinfo += "dn: cn="+crud['cn']+",ou=netgroup,"+dst_base+'\n'
                 nisinfo += print_ldap_list(crud,'objectClass')
                 nisinfo += "cn: "+crud['cn']+'\n'
