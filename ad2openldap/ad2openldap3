@@ -1050,11 +1050,11 @@ def flatten_groups(groups,ugroups,users,dn_uid_map):
 def print_ldap_list(crud,attr):
     ldap_list = ''
     if exists(attr,crud):
-	if isinstance(crud[attr],list):
+        if isinstance(crud[attr],list):
             for item in sorted(crud[attr]):
                 ldap_list += attr+": "+item+'\n'
-	else:
-		ldap_list += attr+": "+crud[attr]+'\n'
+        else:
+            ldap_list += attr+": "+crud[attr]+'\n'
     return ldap_list
 
 
