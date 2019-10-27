@@ -105,3 +105,27 @@ A full update:
 * Directly imports AD dump into database
 * Restarts LDAP server
 * Removes firewall block on LDAP server
+
+
+## Extra: NIS -> AD migration
+
+Migrating NIS netgroups and autofs maps to LDAP can result in cumbersome
+management as one has to give up the convenience of editing flat files.
+However managing fewer servers is also nice and you may want to migrate
+anyway.  
+Most people seem to be recommending these tools: 
+http://www.padl.com/download/MigrationTools.tgz
+
+We were not able to get them to work in 2019 and replaced them with `nis2ad.sh`.
+
+`nis2ad.sh` is a simple shell script that uses the environment variables of
+the PADL tools, please edit nis2ad.cfg
+
+```
+export LDAPHOST='dc.my.org'
+export LDAP_BASEDN='OU=NIS,DC=my,DC=org'
+export LDAP_BINDDN='CN=myserviceaccount,OU=Users,DC=my,DC=org'
+export LDAP_BINDCRED='myserviceaccount_password'
+export LDAPADD='/usr/bin/ldapadd'
+export LDAPMODIFY='/usr/bin/ldapmodify'
+```
