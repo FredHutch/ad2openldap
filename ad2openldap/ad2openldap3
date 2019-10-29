@@ -40,7 +40,7 @@ from string import Template
 __author__ = "Jeff Katcher"
 __credits__ = ["Dirk Petersen","Brian Hodges"]
 __license__ = "GPLv3"
-__version__ = "0.26"
+__version__ = "0.30"
 
 def config_logging(arguments):
     # Set up logging.  Show error messages by default, show debugging 
@@ -188,8 +188,23 @@ def main():
             if arguments.regex_replace:
                 ldif_replace(ad_export_file, arguments.regex_replace)
             
-        # If both files exist we have data that is diffable.
-        diffable = True if os.path.isfile(ad_export_file) and os.path.isfile(ad_export_previous) else False
+            # Apologies for hacky logic, necessary to work around bad 'if'
+            if action == 'deltasync' and arguments.delta_sync:
+                # If both files exist we have data that is diffable.
+                if not os.path.isfile(ad_export_file) or \
+                    not os.path.isfile(ad_export_previous):
+                    logging.error('Both %s (ad_export_file) and %s (ad_export_previous) must be present to determine delta.' % (ad_export_file, ad_export_previous))
+                    return 1
+
+                if ldif_diff(config)>=0:
+                    if os.path.exists(delta_file) and \
+                        os.path.getsize(delta_file) > 0:
+                        run_command(ldapmodify_delta_file,
+                            verbose=arguments.verbose, fatal=False)
+                else:
+                    logging.info('Performing fullsync instead of deltasync')
+                    action='fullsync'
+                    arguments.full_sync=arguments.delta_sync
 
         if action == 'fullsync' and arguments.full_sync:
             # Only root can perform a full sync due to OS-level permissions.
@@ -206,14 +221,6 @@ def main():
             ldap_tree_dir_fix_perms(ldap_tree_dir, ldap_tree_dir_perms, openldap_user, openldap_group)
             run_command(slapd_start, verbose=arguments.verbose)
             run_command(iptables_delete, verbose=arguments.verbose)
-        elif action == 'deltasync' and arguments.delta_sync and diffable:
-            ldif_diff(config)
-            if os.path.exists(delta_file) and os.path.getsize(delta_file) > 0: 
-                run_command(ldapmodify_delta_file, verbose=arguments.verbose,
-                    fatal=False)
-        elif action == 'deltasync' and arguments.delta_sync and not diffable:
-            logging.error('Both %s (ad_export_file) and %s (ad_export_previous) must be present to determine delta.' % (ad_export_file, ad_export_previous))
-            return 1
         elif action == 'healthcheck' and arguments.common_name:
             health_check(arguments.common_name,config,verbose=arguments.verbose)
         elif action == 'setup':
@@ -1096,6 +1103,8 @@ def ldif_diff(config):
     Compare current AD download with previous version and 
     create and ldif file that will perform actions to 
     bring the two version into sync.
+    
+    Return number of add/change diffs or -1 if OU # mismatch
     """
     tmp_dir = config['tmp_dir']
 
@@ -1109,8 +1118,10 @@ def ldif_diff(config):
     # Make sure number of OUs is equal between the comparison files.
     # If not, raise an exception.
     if len(old_ldif)!=len(new_ldif):
-        raise ValueError('Number of OUs is different.  old: %s, new: %s' % (old_ldif.keys(), new_ldif.keys() ))
+        logging.info('Number of OUs is different.  old: %s, new: %s' % (old_ldif.keys(), new_ldif.keys() ))
+        diffs=-1
     else:
+        diffs=0
         with open(delta_file, 'w', encoding='utf-8') as diff_file:
 
             # diff old against new for deletions      
@@ -1137,6 +1148,7 @@ def ldif_diff(config):
                 if diffs!=0:
                     logging.info("Diffs %s" % diffs)
 
+    return diffs
 
 def compute_hash(entry):
     m=hashlib.md5()
