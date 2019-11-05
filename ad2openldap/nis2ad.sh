@@ -12,10 +12,14 @@
 ## https://github.com/FredHutch/ad2openldap/
 
 mydir="${0%/*}"
-. ${mydir}/nis2ad.cfg
+if [[ -f nis2ad.cfg ]]; then
+  . nis2ad.cfg
+else
+  . ${mydir}/nis2ad.cfg
+fi
 
-ldif_map=$(mktemp /tmp/ldif-map.XXX)
-ldif_grp=$(mktemp /tmp/ldif-grp.XXX)
+ldif_map=$(mktemp /tmp/ldap-map-XXX.ldif)
+ldif_grp=$(mktemp /tmp/ldap-grp-XXX.ldif)
 
 echo "writing ldif files ..."
 
@@ -58,7 +62,7 @@ $amcmd | while read line; do
     echo "nisMapEntry: ${dir}" >> $ldif_map
     echo "nisMapName: ${map}" >> $ldif_map
     echo "" >> $ldif_map
-  done 
+  done
 done
 echo "ldif data written to: "
 echo "$ldif_map"
@@ -67,28 +71,35 @@ echo "$ldif_map"
 OU="OU=netgroup,${LDAP_BASEDN}"
 echo "dn: ${OU}" > $ldif_grp
 echo -e "objectClass: top\nobjectClass: organizationalUnit" >> $ldif_grp
-ypcat -k netgroup | while read line; do  
+ypcat -k netgroup | while read line; do
   ngroup=${line%% *}
   content=${line#* }
-  if [[ -z ${ngroup} ]]; then 
+  if [[ -z ${ngroup} ]]; then
     continue
   fi
-  echo "" >> $ldif_grp  
+  echo "" >> $ldif_grp
   echo "dn: CN=${ngroup},${OU}" >> $ldif_grp
-  echo -e "objectClass: top\nobjectClass: nisNetgroup" >> $ldif_grp  
+  echo -e "objectClass: top\nobjectClass: nisNetgroup" >> $ldif_grp
   for entry in $content; do
     if [[ "$entry" =~ '(' ]]; then
       echo "nisNetgroupTriple: ${entry}" >> $ldif_grp
     else
-      echo "memberNisNetgroup: ${entry}" >> $ldif_grp 
+      echo "memberNisNetgroup: ${entry}" >> $ldif_grp
     fi
   done
 done
 echo "$ldif_grp"
 
-echo "${LDAPADD} -x -h ${LDAPHOST} -D \"${LDAP_BINDDN}\" -w \"XXXXXXXX\" -f ${ldif_map} -f ${ldif_grp}"
-read -p "Do you want to import the ldif files into AD using the above command line now? " -n 1 -r -t 60
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  ${LDAPADD} -x -h ${LDAPHOST} -D "${LDAP_BINDDN}" -w "${LDAP_BINDCRED}" -f ${ldif_map} -f ${ldif_grp}
-fi
+echo "${LDAPADD} -x -h ${LDAPHOST} -D \"${LDAP_BINDDN}\" -w \"XXXXXXXX\" -f ${ldif_grp}"
+read -p "Do you want to import the netgroup ldif files into AD using the above command line now? " -n 1 -r -t 60
 echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  ${LDAPADD} -x -h ${LDAPHOST} -D "${LDAP_BINDDN}" -w "${LDAP_BINDCRED}" -f ${ldif_grp}
+fi
+
+echo "${LDAPADD} -x -h ${LDAPHOST} -D \"${LDAP_BINDDN}\" -w \"XXXXXXXX\" -f ${ldif_map}"
+read -p "Do you want to import the Auto FS map ldif files into AD using the above command line now? " -n 1 -r -t 60
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  ${LDAPADD} -x -h ${LDAPHOST} -D "${LDAP_BINDDN}" -w "${LDAP_BINDCRED}" -f ${ldif_map}
+fi
