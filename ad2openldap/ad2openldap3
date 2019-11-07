@@ -1071,15 +1071,18 @@ def retrieve_ldap_nisinfo(ldap_conn,base,dst_base,search_flt):
 
     nisinfo = ''
 
-    attrs=['cn','nisNetgroupTriple','objectClass','nisMapName','nisMapEntry']
+    attrs=['cn','nisNetgroupTriple','memberNisNetgroup','objectClass',
+        'nisMapName','nisMapEntry']
 
     for crud in generate_ldap(ldap_conn,base,search_flt,attrs):
         if 'nisNetgroup' in crud['objectClass']:
-            if exists('cn',crud) and exists('nisNetgroupTriple',crud):
+            if exists('cn',crud) and (exists('nisNetgroupTriple',crud) or \
+                exists('memberNisNetgroup',crud)):
                 nisinfo += "dn: cn="+crud['cn']+",ou=netgroup,"+dst_base+'\n'
                 nisinfo += print_ldap_list(crud,'objectClass')
                 nisinfo += "cn: "+crud['cn']+'\n'
                 nisinfo += print_ldap_list(crud,'nisNetgroupTriple')
+                nisinfo += print_ldap_list(crud,'memberNisNetgroup')
         else:
             cn=crud['cn']
             if 'nisMap' in crud['objectClass']:
