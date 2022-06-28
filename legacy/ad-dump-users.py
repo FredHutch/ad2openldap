@@ -100,7 +100,6 @@ def retrieve_ldap_userinfo(url,base,search_flt,acct_users,debug=0):
       if debug:
          print "Getting page %d" % (pages,)
       rtype, rdata, rmsgid, serverctrls = l.result3(msgid)
-      #print rdata
 
       for index,item in enumerate(rdata):
          #print index,type(item)
