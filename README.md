@@ -106,22 +106,6 @@ A full update:
 * Restarts LDAP server
 * Removes firewall block on LDAP server
 
-### Manually delete an ldap entry:
-
-Locate the existing entry:
-```
-cbianche@rhino02:~$ ldapsearch -x -LLL -H ldap://ldap-j4-02-prd -b "dc=local" "(cn=hutchid)"
-```
-Lookup the bind_dn password in the ad2openldap config file (next command will prompt you for this password):
-```
-cbianche@ldap-j4-02-prd:~$ sudo cat /etc/ad2openldap/ad2openldap.conf | grep bind_dn_password:
-```
-Delete the entry:
-```
-cbianche@rhino02:~$ ldapdelete -v -D "cn=admin,dc=local" -W "uid=hutchid,ou=people,dc=local"
-```
-
-
 ## Extra: NIS -> AD migration
 
 Migrating NIS netgroups and autofs maps to LDAP can result in cumbersome
